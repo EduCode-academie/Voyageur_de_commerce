@@ -1,0 +1,311 @@
+// ============================================
+// LE VOYAGEUR DE COMMERCE - TSP
+// Algorithme glouton + comparaison de circuits
+// Programme EduCode
+// ============================================
+
+// ============================================
+// DONNEES : 6 villes avec coordonnees
+// ============================================
+
+nb_villes est une constante vaut 6
+
+villes est un tableau
+villes[0] vaut 'Paris'
+villes[1] vaut 'Lyon'
+villes[2] vaut 'Marseille'
+villes[3] vaut 'Bordeaux'
+villes[4] vaut 'Nantes'
+villes[5] vaut 'Lille'
+
+vx est un tableau
+vy est un tableau
+vx[0] vaut 50
+vy[0] vaut 80
+vx[1] vaut 65
+vy[1] vaut 45
+vx[2] vaut 70
+vy[2] vaut 15
+vx[3] vaut 20
+vy[3] vaut 35
+vx[4] vaut 15
+vy[4] vaut 60
+vx[5] vaut 52
+vy[5] vaut 95
+
+// Matrice triangulaire des distances reelles (km)
+dist est un tableau
+dist[0] vaut 465   // Paris - Lyon
+dist[1] vaut 775   // Paris - Marseille
+dist[2] vaut 580   // Paris - Bordeaux
+dist[3] vaut 385   // Paris - Nantes
+dist[4] vaut 225   // Paris - Lille
+dist[5] vaut 315   // Lyon - Marseille
+dist[6] vaut 520   // Lyon - Bordeaux
+dist[7] vaut 660   // Lyon - Nantes
+dist[8] vaut 650   // Lyon - Lille
+dist[9] vaut 640   // Marseille - Bordeaux
+dist[10] vaut 920  // Marseille - Nantes
+dist[11] vaut 1000 // Marseille - Lille
+dist[12] vaut 345  // Bordeaux - Nantes
+dist[13] vaut 800  // Bordeaux - Lille
+dist[14] vaut 610  // Nantes - Lille
+
+// ============================================
+// FONCTIONS
+// ============================================
+
+fonction getDistance(xa, b)
+  si xa = b alors
+    retourne 0
+  fin si
+  petit est un nombre
+  grand est un nombre
+  si xa < b alors
+    petit vaut xa
+    grand vaut b
+  sinon
+    petit vaut b
+    grand vaut xa
+  fin si
+  idx est un nombre
+  idx vaut 0
+  i est un nombre
+  pour i de 0 à petit - 1
+    idx ajoute nb_villes - 1 - i
+  fin pour
+  idx ajoute grand - petit - 1
+  retourne dist[idx]
+fin fonction
+
+fonction distanceCircuit(circuit)
+  total est un nombre
+  total vaut 0
+  i est un nombre
+  pour i de 0 à nb_villes - 1
+    prochaine est un nombre
+    si i = nb_villes - 1 alors
+      prochaine vaut circuit[0]
+    sinon
+      prochaine vaut circuit[i + 1]
+    fin si
+    total ajoute getDistance(circuit[i], prochaine)
+  fin pour
+  retourne total
+fin fonction
+
+// ============================================
+// PROCEDURES
+// ============================================
+
+procédure afficherCircuit(circuit, titre)
+  affiche ''
+  affiche '  ' + titre
+  affiche repeter_texte('-', 50)
+  i est un nombre
+  prochaine est un nombre
+  pour i de 0 à nb_villes - 1
+    si i = nb_villes - 1 alors
+      prochaine vaut circuit[0]
+    sinon
+      prochaine vaut circuit[i + 1]
+    fin si
+    d est un nombre
+    d vaut getDistance(circuit[i], prochaine)
+    si i < nb_villes - 1 alors
+      affiche '  ' + villes[circuit[i]] + ' -> ' + villes[circuit[i+1]] + ' : ' + d + ' km'
+    sinon
+      affiche '  ' + villes[circuit[i]] + ' -> ' + villes[circuit[0]] + ' : ' + d + ' km (retour)'
+    fin si
+  fin pour
+  affiche repeter_texte('-', 50)
+  affiche '  Distance totale : ' + distanceCircuit(circuit) + ' km'
+  affiche repeter_texte('-', 50)
+fin procédure
+
+procédure dessinerCarte()
+  larg est un nombre
+  larg vaut 78
+  haut est un nombre
+  haut vaut 22
+  grille est un tableau
+  x est un nombre
+  y est un nombre
+  i est un nombre
+
+  // Remplir de espaces
+  pour y de 0 à haut - 1
+    ligne est un texte
+    ligne vaut ''
+    pour x de 0 à larg - 1
+      ligne vaut ligne + ' '
+    fin pour
+    grille[y] vaut ligne
+  fin pour
+
+  // Placer les marqueurs de villes
+  pour i de 0 à nb_villes - 1
+    px est un nombre
+    py est un nombre
+    px vaut arrondi(vx[i] * larg / 100)
+    py vaut arrondi((100 - vy[i]) * haut / 100)
+    si px < 1 alors
+      px vaut 1
+    fin si
+    si px > larg - 3 alors
+      px vaut larg - 3
+    fin si
+    si py < 0 alors
+      py vaut 0
+    fin si
+    si py > haut - 1 alors
+      py vaut haut - 1
+    fin si
+    debut est un texte
+    debut vaut copier(grille[py], 1, px - 1)
+    reste est un texte
+    reste vaut copier(grille[py], px + 3, larg)
+    grille[py] vaut debut + '[' + i + ']' + reste
+  fin pour
+
+  affiche ''
+  affiche '  CARTE DES VILLES'
+  affiche '  +' + repeter_texte('-', larg) + '+'
+  pour y de 0 à haut - 1
+    affiche '  |' + grille[y] + '|'
+  fin pour
+  affiche '  +' + repeter_texte('-', larg) + '+'
+  affiche ''
+  affiche '  Legende :'
+  pour i de 0 à nb_villes - 1
+    affiche '  [' + i + '] ' + villes[i]
+  fin pour
+fin procédure
+
+procédure algorithmeGlouton()
+  affiche ''
+  affiche repeter_texte('=', 50)
+  affiche '  ALGORITHME GLOUTON'
+  affiche '  Strategie : toujours aller vers la ville'
+  affiche '  la plus proche non encore visitee.'
+  affiche repeter_texte('=', 50)
+
+  visite est un tableau
+  circuit_glouton est un tableau
+  i est un nombre
+  pour i de 0 à nb_villes - 1
+    visite[i] vaut faux
+  fin pour
+
+  courant est un nombre
+  courant vaut 0
+  circuit_glouton[0] vaut 0
+  visite[0] vaut vrai
+  affiche ''
+  affiche '  Depart : ' + villes[0]
+  affiche ''
+
+  etape est un nombre
+  pour etape de 1 à nb_villes - 1
+    min_dist est un nombre
+    min_dist vaut 999999
+    prochaine est un nombre
+    prochaine vaut -1
+    j est un nombre
+    pour j de 0 à nb_villes - 1
+      si visite[j] = faux alors
+        d est un nombre
+        d vaut getDistance(courant, j)
+        si d < min_dist alors
+          min_dist vaut d
+          prochaine vaut j
+        fin si
+      fin si
+    fin pour
+    affiche '  Etape ' + etape + ' : ' + villes[courant] + ' -> ' + villes[prochaine] + ' (' + min_dist + ' km)'
+    visite[prochaine] vaut vrai
+    circuit_glouton[etape] vaut prochaine
+    courant vaut prochaine
+  fin pour
+
+  retour est un nombre
+  retour vaut getDistance(courant, 0)
+  affiche '  Retour   : ' + villes[courant] + ' -> ' + villes[0] + ' (' + retour + ' km)'
+  affiche ''
+  appelle afficherCircuit(circuit_glouton, 'RESULTAT GLOUTON')
+fin procédure
+
+procédure comparerCircuits()
+  affiche ''
+  affiche repeter_texte('=', 50)
+  affiche '  COMPARAISON DE CIRCUITS'
+  affiche repeter_texte('=', 50)
+  affiche ''
+
+  c1 est un tableau
+  c1[0] vaut 0
+  c1[1] vaut 1
+  c1[2] vaut 2
+  c1[3] vaut 3
+  c1[4] vaut 4
+  c1[5] vaut 5
+  appelle afficherCircuit(c1, 'Circuit 1 : Paris->Lyon->Marseille->Bordeaux->Nantes->Lille')
+  affiche ''
+
+  c2 est un tableau
+  c2[0] vaut 5
+  c2[1] vaut 0
+  c2[2] vaut 1
+  c2[3] vaut 2
+  c2[4] vaut 3
+  c2[5] vaut 4
+  appelle afficherCircuit(c2, 'Circuit 2 : Lille->Paris->Lyon->Marseille->Bordeaux->Nantes')
+  affiche ''
+
+  c3 est un tableau
+  c3[0] vaut 0
+  c3[1] vaut 5
+  c3[2] vaut 4
+  c3[3] vaut 3
+  c3[4] vaut 2
+  c3[5] vaut 1
+  appelle afficherCircuit(c3, 'Circuit 3 : Paris->Lille->Nantes->Bordeaux->Marseille->Lyon')
+  affiche ''
+
+  c4 est un tableau
+  c4[0] vaut 0
+  c4[1] vaut 4
+  c4[2] vaut 3
+  c4[3] vaut 2
+  c4[4] vaut 1
+  c4[5] vaut 5
+  appelle afficherCircuit(c4, 'Circuit 4 : Paris->Nantes->Bordeaux->Marseille->Lyon->Lille')
+fin procédure
+
+// ============================================
+// PROGRAMME PRINCIPAL
+// ============================================
+
+affiche ''
+affiche '  *** LE VOYAGEUR DE COMMERCE ***'
+affiche '  Trouver le circuit le plus court'
+affiche '  passant par toutes les villes une fois.'
+affiche ''
+affiche '  ' + nb_villes + ' villes francaises :'
+i est un nombre
+pour i de 0 à nb_villes - 1
+  affiche '  -> ' + villes[i]
+fin pour
+affiche ''
+affiche '  Circuits possibles : (N-1)!/2'
+affiche '  6 villes   ->        60 circuits'
+affiche '  10 villes  ->   181 440 circuits'
+affiche '  20 villes  ->  60 000 mrd circuits'
+affiche ''
+
+// Carte ASCII
+appelle dessinerCarte()
+// Algorithme glouton
+appelle algorithmeGlouton()
+// Comparaison de circuits
+appelle comparerCircuits()
